@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+
+{% block title %}
+Attendance Records
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2>
+        <i class="bi bi-calendar-check"></i>
+        Attendance Records
+    </h2>
+    <div id="attendanceMessage"></div>
+
+<div>
+
+    {% if user.role == "EMPLOYEE" %}
+
+    <!-- Hidden CSRF Token -->
+
+    <form id="attendanceForm">
+
+        {% csrf_token %}
+
+    </form>
+
+    <button
+        id="checkInBtn"
+        type="button"
+        class="btn btn-success"
+        data-url="{% url 'attendance:check_in' %}">
+
+        <i class="bi bi-box-arrow-in-right"></i>
+        Check In
+
+    </button>
+
+    <button
+        id="checkOutBtn"
+        type="button"
+        class="btn btn-danger"
+        data-url="{% url 'attendance:check_out' %}">
+
+        <i class="bi bi-box-arrow-left"></i>
+        Check Out
+
+    </button>
+
+    {% endif %}
+
+        {% if perms.attendance.add_attendance %}
+
+        <a href="{% url 'attendance:attendance_create' %}"
+           class="btn btn-primary">
+
+            <i class="bi bi-plus-circle"></i>
+            Add Attendance
+
+        </a>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+<!-- Search Form -->
+
+<div class="card shadow mb-4">
+
+    <div class="card-body">
+
+        <form method="get">
+
+            <div class="row">
+
+                {% if user.role != "EMPLOYEE" %}
+
+<div class="col-md-4">
+
+    <input
+        type="text"
+        name="employee"
+        value="{{ request.GET.employee }}"
+        class="form-control"
+        placeholder="Search by Employee ID">
+
+</div>
+
+{% endif %}
+
+                <div class="col-md-3">
+
+                    <select name="status"
+                            class="form-select">
+
+                        <option value="">
+                            All Status
+                        </option>
+
+                        <option value="Present"
+                            {% if request.GET.status == "Present" %}
+                            selected
+                            {% endif %}>
+                            Present
+                        </option>
+
+                        <option value="Absent"
+                            {% if request.GET.status == "Absent" %}
+                            selected
+                            {% endif %}>
+                            Absent
+                        </option>
+
+                        <option value="Leave"
+                            {% if request.GET.status == "Leave" %}
+                            selected
+                            {% endif %}>
+                            Leave
+                        </option>
+
+                        <option value="Half Day"
+                            {% if request.GET.status == "Half Day" %}
+                            selected
+                            {% endif %}>
+                            Half Day
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <input
+                        type="date"
+                        name="date"
+                        value="{{ request.GET.date }}"
+                        class="form-control">
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <button
+                        type="submit"
+                        class="btn btn-success w-100">
+
+                        <i class="bi bi-search"></i>
+                        Search
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- Attendance Table -->
+
+<div class="card shadow">
+
+    <div class="card-body table-responsive">
+
+        <table class="table table-hover align-middle">
+
+            <thead class="table-dark">
+
+                <tr>
+
+                    {% if user.role != "EMPLOYEE" %}
+<th>Employee</th>
+{% endif %}
+                    <th>Date</th>
+                    <th>Check In</th>
+                    <th>Check Out</th>
+                    <th>Hours</th>
+                    <th>Status</th>
+
+                    <th width="180">
+                        Actions
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for attendance in attendances %}
+
+                <tr>
+
+                    {% if user.role != "EMPLOYEE" %}
+<td>
+    {{ attendance.employee }}
+</td>
+{% endif %}
+
+                    <td>
+
+                        {{ attendance.date }}
+
+                    </td>
+
+                    <td>
+
+                        {{ attendance.check_in|default:"--" }}
+
+                    </td>
+
+                    <td>
+
+                        {{ attendance.check_out|default:"--" }}
+
+                    </td>
+
+                    <td>
+
+                        {{ attendance.working_hours|default:"--" }}
+
+                    </td>
+
+                    <td>
+
+                        {% if attendance.status == "Present" %}
+
+                        <span class="badge bg-success">
+
+                            {{ attendance.status }}
+
+                        </span>
+
+                        {% elif attendance.status == "Absent" %}
+
+                        <span class="badge bg-danger">
+
+                            {{ attendance.status }}
+
+                        </span>
+
+                        {% elif attendance.status == "Leave" %}
+
+                        <span class="badge bg-warning text-dark">
+
+                            {{ attendance.status }}
+
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge bg-info text-dark">
+
+                            {{ attendance.status }}
+
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <a href="{% url 'attendance:attendance_detail' attendance.pk %}"
+                           class="btn btn-info btn-sm text-white">
+
+                            <i class="bi bi-eye"></i>
+
+                        </a>
+
+                        {% if perms.attendance.change_attendance %}
+
+                        <a href="{% url 'attendance:attendance_update' attendance.pk %}"
+                           class="btn btn-warning btn-sm">
+
+                            <i class="bi bi-pencil"></i>
+
+                        </a>
+
+                        {% endif %}
+
+                        {% if perms.attendance.delete_attendance %}
+
+                        <a href="{% url 'attendance:attendance_delete' attendance.pk %}"
+                           class="btn btn-danger btn-sm">
+
+                            <i class="bi bi-trash"></i>
+
+                        </a>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="7"
+                        class="text-center">
+
+                        No attendance records found.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<!-- Pagination -->
+
+{% if is_paginated %}
+
+<nav class="mt-4">
+
+    <ul class="pagination justify-content-center">
+
+        {% if page_obj.has_previous %}
+
+        <li class="page-item">
+
+            <a class="page-link"
+               href="?employee={{ request.GET.employee }}&status={{ request.GET.status }}&date={{ request.GET.date }}&page={{ page_obj.previous_page_number }}">
+
+                Previous
+
+            </a>
+
+        </li>
+
+        {% endif %}
+
+        <li class="page-item active">
+
+            <span class="page-link">
+
+                Page {{ page_obj.number }}
+                of
+                {{ page_obj.paginator.num_pages }}
+
+            </span>
+
+        </li>
+
+        {% if page_obj.has_next %}
+
+        <li class="page-item">
+
+            <a class="page-link"
+               href="?employee={{ request.GET.employee }}&status={{ request.GET.status }}&date={{ request.GET.date }}&page={{ page_obj.next_page_number }}">
+
+                Next
+
+            </a>
+
+        </li>
+
+        {% endif %}
+
+    </ul>
+
+</nav>
+
+{% endif %}
+
+{% endblock %}

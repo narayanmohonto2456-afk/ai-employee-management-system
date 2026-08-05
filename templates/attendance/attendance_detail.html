@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}
+Attendance Details
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-info text-white">
+
+                    <h4 class="mb-0">
+                        Attendance Details
+                    </h4>
+
+                </div>
+
+                <div class="card-body">
+
+                    <table class="table table-bordered">
+
+                        <tr>
+                            <th width="30%">Employee</th>
+                            <td>{{ attendance.employee }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Date</th>
+                            <td>{{ attendance.date }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Check In</th>
+                            <td>{{ attendance.check_in|default:"--" }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Check Out</th>
+                            <td>{{ attendance.check_out|default:"--" }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Working Hours</th>
+                            <td>{{ attendance.working_hours|default:"--" }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Status</th>
+                            <td>
+
+                                {% if attendance.status == "Present" %}
+                                    <span class="badge bg-success">
+                                        {{ attendance.status }}
+                                    </span>
+
+                                {% elif attendance.status == "Absent" %}
+                                    <span class="badge bg-danger">
+                                        {{ attendance.status }}
+                                    </span>
+
+                                {% elif attendance.status == "Leave" %}
+                                    <span class="badge bg-warning text-dark">
+                                        {{ attendance.status }}
+                                    </span>
+
+                                {% else %}
+                                    <span class="badge bg-info text-dark">
+                                        {{ attendance.status }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Created At</th>
+                            <td>{{ attendance.created_at }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Updated At</th>
+                            <td>{{ attendance.updated_at }}</td>
+                        </tr>
+
+                    </table>
+
+                    <a href="{% url 'attendance:attendance_update' attendance.pk %}"
+                       class="btn btn-warning">
+
+                        Edit
+
+                    </a>
+
+                    <a href="{% url 'attendance:attendance_delete' attendance.pk %}"
+                       class="btn btn-danger">
+
+                        Delete
+
+                    </a>
+
+                    <a href="{% url 'attendance:attendance_list' %}"
+                       class="btn btn-secondary">
+
+                        Back
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

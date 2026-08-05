@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+
+{% block title %}
+Employee List
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="mb-1">
+                <i class="bi bi-people-fill"></i>
+                Employee List
+            </h2>
+
+            <p class="text-muted mb-0">
+                Manage all employees in the organization
+            </p>
+
+        </div>
+
+        <a href="{% url 'employees:employee_create' %}"
+           class="btn btn-primary">
+
+            <i class="bi bi-plus-circle"></i>
+            Create Employee
+
+        </a>
+
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="card shadow mb-4">
+
+        <div class="card-body">
+
+            <form method="get">
+
+                <div class="row g-3">
+
+                    <!-- Search -->
+                    <div class="col-lg-4">
+
+                        <input
+                            type="text"
+                            name="q"
+                            class="form-control"
+                            placeholder="Search Employee..."
+                            value="{{ search_query }}">
+
+                    </div>
+
+                    <!-- Department -->
+                    <div class="col-lg-3">
+
+                        <select
+                            name="department"
+                            class="form-select">
+
+                            <option value="">
+                                All Departments
+                            </option>
+
+                            {% for department in departments %}
+
+                            <option
+                                value="{{ department.id }}"
+                                {% if selected_department == department.id|stringformat:"s" %}
+                                selected
+                                {% endif %}>
+
+                                {{ department.department_name }}
+
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                    <!-- Gender -->
+                    <div class="col-lg-3">
+
+                        <select
+                            name="gender"
+                            class="form-select">
+
+                            <option value="">
+                                All Genders
+                            </option>
+
+                            <option value="Male"
+                                {% if selected_gender == "Male" %}
+                                selected
+                                {% endif %}>
+                                Male
+                            </option>
+
+                            <option value="Female"
+                                {% if selected_gender == "Female" %}
+                                selected
+                                {% endif %}>
+                                Female
+                            </option>
+
+                            <option value="Other"
+                                {% if selected_gender == "Other" %}
+                                selected
+                                {% endif %}>
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- Search Button -->
+                    <div class="col-lg-2 d-grid">
+
+                        <button
+                            type="submit"
+                            class="btn btn-success">
+
+                            <i class="bi bi-search"></i>
+                            Search
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- Employee Table -->
+    <div class="card shadow">
+
+        <div class="card-header bg-primary text-white">
+
+            <h5 class="mb-0">
+
+                Employee Records
+
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            {% if employees %}
+
+            <div class="table-responsive">
+
+                <table class="table table-hover table-bordered align-middle">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Photo</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>Joining Date</th>
+                            <th class="text-center">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for employee in employees %}
+
+                        <tr>
+
+                            <td>
+
+                                {{ employee.employee_id }}
+
+                            </td>
+
+                            <td class="text-center">
+
+                                {% if employee.profile_picture %}
+
+                                    <img
+                                        src="{{ employee.profile_picture.url }}"
+                                        width="50"
+                                        height="50"
+                                        class="rounded-circle border"
+                                        alt="Employee">
+
+                                {% else %}
+
+                                    <i class="bi bi-person-circle fs-2 text-secondary"></i>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                {{ employee.user.get_full_name|default:employee.user.username }}
+
+                            </td>
+
+                            <td>
+
+                                {{ employee.department.department_name|default:"Not Assigned" }}
+
+                            </td>
+
+                            <td>
+
+                                {{ employee.designation }}
+
+                            </td>
+
+                            <td>
+
+                                {{ employee.joining_date|date:"d M Y" }}
+
+                            </td>
+
+                            <td class="text-center">
+
+                                <a
+                                    href="{% url 'employees:employee_detail' employee.pk %}"
+                                    class="btn btn-info btn-sm">
+
+                                    <i class="bi bi-eye"></i>
+
+                                </a>
+
+                                <a
+                                    href="{% url 'employees:employee_update' employee.pk %}"
+                                    class="btn btn-warning btn-sm">
+
+                                    <i class="bi bi-pencil-square"></i>
+
+                                </a>
+
+                                <a
+                                    href="{% url 'employees:employee_delete' employee.pk %}"
+                                    class="btn btn-danger btn-sm">
+
+                                    <i class="bi bi-trash"></i>
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            {% else %}
+
+            <div class="alert alert-info text-center">
+
+                <h5 class="mb-0">
+
+                    No employees found.
+
+                </h5>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+
+    <nav class="mt-4">
+
+        <ul class="pagination justify-content-center">
+
+            {% if page_obj.has_previous %}
+
+            <li class="page-item">
+
+                <a
+                    class="page-link"
+                    href="?q={{ search_query }}&department={{ selected_department }}&gender={{ selected_gender }}&page=1">
+
+                    First
+
+                </a>
+
+            </li>
+
+            <li class="page-item">
+
+                <a
+                    class="page-link"
+                    href="?q={{ search_query }}&department={{ selected_department }}&gender={{ selected_gender }}&page={{ page_obj.previous_page_number }}">
+
+                    Previous
+
+                </a>
+
+            </li>
+
+            {% endif %}
+
+            <li class="page-item active">
+
+                <span class="page-link">
+
+                    {{ page_obj.number }}
+
+                </span>
+
+            </li>
+
+            <li class="page-item disabled">
+
+                <span class="page-link">
+
+                    of {{ page_obj.paginator.num_pages }}
+
+                </span>
+
+            </li>
+
+            {% if page_obj.has_next %}
+
+            <li class="page-item">
+
+                <a
+                    class="page-link"
+                    href="?q={{ search_query }}&department={{ selected_department }}&gender={{ selected_gender }}&page={{ page_obj.next_page_number }}">
+
+                    Next
+
+                </a>
+
+            </li>
+
+            <li class="page-item">
+
+                <a
+                    class="page-link"
+                    href="?q={{ search_query }}&department={{ selected_department }}&gender={{ selected_gender }}&page={{ page_obj.paginator.num_pages }}">
+
+                    Last
+
+                </a>
+
+            </li>
+
+            {% endif %}
+
+        </ul>
+
+    </nav>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

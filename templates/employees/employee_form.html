@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if object %}
+        Edit Employee
+    {% else %}
+        Create Employee
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-10">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-primary text-white">
+
+                    <h3 class="mb-0">
+
+                        {% if object %}
+                            <i class="bi bi-pencil-square"></i>
+                            Edit Employee
+                        {% else %}
+                            <i class="bi bi-person-plus-fill"></i>
+                            Create Employee
+                        {% endif %}
+
+                    </h3>
+
+                </div>
+
+                <div class="card-body">
+
+                    <form method="post"
+                          enctype="multipart/form-data">
+
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+
+                        <div class="alert alert-danger">
+
+                            {{ form.non_field_errors }}
+
+                        </div>
+
+                        {% endif %}
+
+                        {% if object and object.profile_picture %}
+
+                        <div class="text-center mb-4">
+
+                            <img
+                                src="{{ object.profile_picture.url }}"
+                                alt="Profile Picture"
+                                class="rounded-circle img-thumbnail"
+                                width="180"
+                                height="180">
+
+                        </div>
+
+                        {% endif %}
+
+                        <div class="row">
+
+                            {% for field in form %}
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+
+                                    {{ field.label }}
+
+                                    {% if field.field.required %}
+                                        <span class="text-danger">*</span>
+                                    {% endif %}
+
+                                </label>
+
+                                {{ field }}
+
+                                {% if field.help_text %}
+
+                                <div class="form-text">
+
+                                    {{ field.help_text }}
+
+                                </div>
+
+                                {% endif %}
+
+                                {% for error in field.errors %}
+
+                                <div class="text-danger small">
+
+                                    {{ error }}
+
+                                </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+
+                            <a href="{% url 'employees:employee_list' %}"
+                               class="btn btn-secondary">
+
+                                <i class="bi bi-arrow-left"></i>
+
+                                Back
+
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn btn-success">
+
+                                {% if object %}
+
+                                    <i class="bi bi-check-circle"></i>
+
+                                    Update Employee
+
+                                {% else %}
+
+                                    <i class="bi bi-plus-circle"></i>
+
+                                    Create Employee
+
+                                {% endif %}
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

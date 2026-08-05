@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}
+Delete Attendance
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-6">
+
+            <div class="card shadow border-danger">
+
+                <div class="card-header bg-danger text-white">
+
+                    <h4 class="mb-0">
+
+                        Delete Attendance Record
+
+                    </h4>
+
+                </div>
+
+                <div class="card-body">
+
+                    <p class="lead">
+
+                        Are you sure you want to delete this attendance record?
+
+                    </p>
+
+                    <table class="table">
+
+                        <tr>
+                            <th>Employee</th>
+                            <td>{{ object.employee }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Date</th>
+                            <td>{{ object.date }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Status</th>
+                            <td>{{ object.status }}</td>
+                        </tr>
+
+                    </table>
+
+                    <form method="post">
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-danger">
+
+                            Yes, Delete
+
+                        </button>
+
+                        <a href="{% url 'attendance:attendance_list' %}"
+                           class="btn btn-secondary">
+
+                            Cancel
+
+                        </a>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

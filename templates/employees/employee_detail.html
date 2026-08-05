@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}
+Employee Details
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-info text-white">
+
+            <h3 class="mb-0">
+                Employee Details
+            </h3>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-4 text-center">
+
+                    {% if employee.profile_picture %}
+
+                        <img src="{{ employee.profile_picture.url }}"
+                             class="img-fluid rounded-circle border"
+                             width="220"
+                             height="220">
+
+                    {% else %}
+
+                        <img src="https://via.placeholder.com/220"
+                             class="img-fluid rounded-circle border">
+
+                    {% endif %}
+
+                </div>
+
+                <div class="col-md-8">
+
+                    <table class="table table-bordered">
+
+                        <tr>
+                            <th width="35%">Employee ID</th>
+                            <td>{{ employee.employee_id }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Full Name</th>
+                            <td>{{ employee.user.get_full_name }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Username</th>
+                            <td>{{ employee.user.username }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Email</th>
+                            <td>{{ employee.user.email }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Department</th>
+                            <td>{{ employee.department.department_name }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Designation</th>
+                            <td>{{ employee.designation }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Gender</th>
+                            <td>{{ employee.gender }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Date of Birth</th>
+                            <td>{{ employee.date_of_birth }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Joining Date</th>
+                            <td>{{ employee.joining_date }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Address</th>
+                            <td>{{ employee.address }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>City</th>
+                            <td>{{ employee.city }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>State</th>
+                            <td>{{ employee.state }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Country</th>
+                            <td>{{ employee.country }}</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card-footer d-flex justify-content-between">
+
+            <a href="{% url 'employees:employee_list' %}"
+               class="btn btn-secondary">
+
+                Back
+
+            </a>
+
+            <div>
+
+                <a href="{% url 'employees:employee_update' employee.pk %}"
+                   class="btn btn-warning">
+
+                    Edit
+
+                </a>
+
+                <a href="{% url 'employees:employee_delete' employee.pk %}"
+                   class="btn btn-danger">
+
+                    Delete
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

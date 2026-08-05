@@ -1,0 +1,613 @@
+{% extends "base.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block content %}
+
+<!-- ========================= -->
+<!-- Dashboard Header -->
+<!-- ========================= -->
+
+<div class="mb-4">
+
+    <h2>
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </h2>
+
+    <p class="text-muted">
+        Welcome,
+        {{ request.user.get_full_name|default:request.user.username }}
+    </p>
+
+</div>
+
+<!-- ========================= -->
+<!-- Statistics Cards -->
+<!-- ========================= -->
+
+<div class="row g-4 mb-4">
+
+    <!-- Total Employees -->
+
+    <div class="col-lg-3 col-md-6">
+
+        <div class="card bg-primary text-white shadow">
+
+            <div class="card-body">
+
+                <h5>
+
+                    <i class="bi bi-people-fill me-2"></i>
+
+                    Total Employees
+
+                </h5>
+
+                <h2>
+
+                    {{ employee_count }}
+
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Total Departments -->
+
+    <div class="col-lg-3 col-md-6">
+
+        <div class="card bg-success text-white shadow">
+
+            <div class="card-body">
+
+                <h5>
+
+                    <i class="bi bi-building me-2"></i>
+
+                    Total Departments
+
+                </h5>
+
+                <h2>
+
+                    {{ department_count }}
+
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Attendance Records -->
+
+    <div class="col-lg-3 col-md-6">
+
+        <div class="card bg-info text-white shadow">
+
+            <div class="card-body">
+
+                <h5>
+
+                    <i class="bi bi-calendar-check me-2"></i>
+
+                    Attendance Records
+
+                </h5>
+
+                <h2>
+
+                    {{ attendance_count }}
+
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Leave Requests -->
+
+    <div class="col-lg-3 col-md-6">
+
+        <div class="card bg-danger text-white shadow">
+
+            <div class="card-body">
+
+                <h5>
+
+                    <i class="bi bi-calendar-x me-2"></i>
+
+                    Leave Requests
+
+                </h5>
+
+                <h2>
+
+                    {{ leave_count }}
+
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- Today's Attendance -->
+<!-- ========================= -->
+
+<div class="row g-4 mb-4">
+
+    <div class="col-lg-3 col-md-6">
+
+        <div class="card border-success shadow-sm">
+
+            <div class="card-body text-center">
+
+                <h6>
+
+                    Today's Present
+
+                </h6>
+
+                <h2 class="text-success">
+
+                    {{ today_present }}
+
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+
+        <div class="card border-danger shadow-sm">
+
+            <div class="card-body text-center">
+
+                <h6>
+
+                    Today's Absent
+
+                </h6>
+
+                <h2 class="text-danger">
+
+                    {{ today_absent }}
+
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+
+        <div class="card border-warning shadow-sm">
+
+            <div class="card-body text-center">
+
+                <h6>
+
+                    Today's Leave
+
+                </h6>
+
+                <h2 class="text-warning">
+
+                    {{ today_leave }}
+
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+
+        <div class="card border-info shadow-sm">
+
+            <div class="card-body text-center">
+
+                <h6>
+
+                    Half Day
+
+                </h6>
+
+                <h2 class="text-info">
+
+                    {{ today_half_day }}
+
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- Quick Actions -->
+<!-- ========================= -->
+
+<div class="card shadow mb-4">
+
+    <div class="card-header">
+
+        <h5 class="mb-0">
+
+            Quick Actions
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        {% if perms.employees.add_employee %}
+
+        <a href="{% url 'employees:employee_create' %}"
+           class="btn btn-primary me-2 mb-2">
+
+            <i class="bi bi-person-plus"></i>
+
+            Add Employee
+
+        </a>
+
+        {% endif %}
+
+        {% if perms.departments.add_department %}
+
+        <a href="{% url 'departments:department_create' %}"
+           class="btn btn-success me-2 mb-2">
+
+            <i class="bi bi-building-add"></i>
+
+            Add Department
+
+        </a>
+
+        {% endif %}
+
+        <a href="{% url 'employees:employee_list' %}"
+           class="btn btn-info text-white me-2 mb-2">
+
+            <i class="bi bi-people"></i>
+
+            Employee List
+
+        </a>
+
+        <a href="{% url 'departments:department_list' %}"
+           class="btn btn-secondary me-2 mb-2">
+
+            <i class="bi bi-building"></i>
+
+            Department List
+
+        </a>
+
+        <a href="{% url 'attendance:attendance_list' %}"
+           class="btn btn-warning me-2 mb-2">
+
+            <i class="bi bi-calendar-check"></i>
+
+            Attendance
+
+        </a>
+
+        <a href="{% url 'leave_management:leave_list' %}"
+           class="btn btn-dark mb-2">
+
+            <i class="bi bi-calendar-x"></i>
+
+            Leave Management
+
+        </a>
+
+    </div>
+
+</div>
+<!-- ========================= -->
+<!-- Recent Employees & Recent Leave Requests -->
+<!-- ========================= -->
+
+<div class="row">
+
+    <!-- Recent Employees -->
+
+    <div class="col-lg-6 mb-4">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-primary text-white">
+
+                <h5 class="mb-0">
+
+                    <i class="bi bi-people-fill"></i>
+
+                    Recent Employees
+
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Department</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for employee in recent_employees %}
+
+                            <tr>
+
+                                <td>
+
+                                    {{ employee.employee_id }}
+
+                                </td>
+
+                                <td>
+
+                                    {{ employee.user.get_full_name|default:employee.user.username }}
+
+                                </td>
+
+                                <td>
+
+                                    {{ employee.department.department_name }}
+
+                                </td>
+
+                            </tr>
+
+                            {% empty %}
+
+                            <tr>
+
+                                <td colspan="3" class="text-center text-muted">
+
+                                    No employees found.
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Recent Leave Requests -->
+
+    <div class="col-lg-6 mb-4">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-danger text-white">
+
+                <h5 class="mb-0">
+
+                    <i class="bi bi-calendar-x"></i>
+
+                    Recent Leave Requests
+
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Employee</th>
+                                <th>Leave Type</th>
+                                <th>Status</th>
+                                <th>Action</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for leave in recent_leaves %}
+
+                            <tr>
+
+                                <td>
+
+                                    {{ leave.employee.user.get_full_name|default:leave.employee.user.username }}
+
+                                </td>
+
+                                <td>
+
+                                    {{ leave.leave_type.name }}
+
+                                </td>
+
+                                <td>
+
+                                    {% if leave.status == "Approved" %}
+
+                                    <span class="badge bg-success">
+
+                                        Approved
+
+                                    </span>
+
+                                    {% elif leave.status == "Rejected" %}
+
+                                    <span class="badge bg-danger">
+
+                                        Rejected
+
+                                    </span>
+
+                                    {% else %}
+
+                                    <span class="badge bg-warning text-dark">
+
+                                        Pending
+
+                                    </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+
+                                    <a href="{% url 'leave_management:leave_detail' leave.pk %}"
+                                       class="btn btn-sm btn-info text-white">
+
+                                        <i class="bi bi-eye"></i>
+
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                            {% empty %}
+
+                            <tr>
+
+                                <td colspan="4" class="text-center text-muted">
+
+                                    No leave requests found.
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<hr class="my-5">
+
+<div class="row mt-4">
+
+    <div class="col-lg-6 mx-auto">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-dark text-white">
+
+                <h5 class="mb-0">
+                    Attendance Overview
+                </h5>
+
+            </div>
+
+            <div class="card-body text-center">
+
+                <div style="width:350px; height:350px; margin:auto;">
+
+                    <canvas id="attendanceChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% block extra_js %}
+
+<script>
+
+const ctx = document.getElementById('attendanceChart');
+
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Present', 'Absent', 'Leave', 'Half Day'],
+        datasets: [{
+            data: [
+                {{ present_count }},
+                {{ absent_count }},
+                {{ leave_attendance_count }},
+                {{ half_day_count }}
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+</script>
+
+{% endblock %}
+
+{% endblock %}

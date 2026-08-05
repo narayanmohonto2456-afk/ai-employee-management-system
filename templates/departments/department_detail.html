@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}
+Department Details
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-info text-white">
+
+            <h3>Department Details</h3>
+
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-bordered">
+
+                <tr>
+                    <th width="30%">Department Name</th>
+                    <td>{{ department.department_name }}</td>
+                </tr>
+
+                <tr>
+                    <th>Department Code</th>
+                    <td>{{ department.department_code }}</td>
+                </tr>
+
+                <tr>
+                    <th>Description</th>
+                    <td>{{ department.description }}</td>
+                </tr>
+
+                <tr>
+                    <th>Created At</th>
+                    <td>{{ department.created_at }}</td>
+                </tr>
+
+                <tr>
+                    <th>Updated At</th>
+                    <td>{{ department.updated_at }}</td>
+                </tr>
+
+            </table>
+
+            <div class="mt-3">
+
+                <a href="{% url 'departments:department_update' department.pk %}"
+                   class="btn btn-warning">
+
+                    Edit
+
+                </a>
+
+                <a href="{% url 'departments:department_delete' department.pk %}"
+                   class="btn btn-danger">
+
+                    Delete
+
+                </a>
+
+                <a href="{% url 'departments:department_list' %}"
+                   class="btn btn-secondary">
+
+                    Back
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

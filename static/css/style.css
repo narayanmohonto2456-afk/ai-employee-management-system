@@ -1,0 +1,85 @@
+/* EMS custom styles — populated starting Module 3 (auth pages) and Module 10 (dashboard UI) */
+body {
+    background-color: #f5f6fa;
+}
+
+.sidebar {
+    min-height: calc(100vh - 56px);
+    background-color: #212529;
+}
+
+.sidebar .nav-link {
+    color: #ffffff;
+    padding: 12px 20px;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #343a40;
+}
+
+.sidebar .nav-link.active {
+    background-color: #0d6efd;
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.profile-image {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile-image {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.dropdown-menu {
+    min-width: 220px;
+}
+
+.navbar-brand {
+    font-size: 1.4rem;
+}
+
+/* Sidebar */
+
+.sidebar {
+    min-height: calc(100vh - 56px);
+    background: #212529;
+    padding-top: 10px;
+}
+
+.sidebar .nav-link {
+    color: #ffffff;
+    padding: 12px 20px;
+    transition: 0.3s;
+}
+
+.sidebar .nav-link:hover {
+    background: #0d6efd;
+    color: #ffffff;
+}
+
+.sidebar .nav-link i {
+    margin-right: 10px;
+}
+
+.sidebar h5 {
+    font-weight: bold;
+}
+
+.sidebar small {
+    color: #ced4da;
+}
+

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}
+Profile
+{% endblock %}
+
+{% block content %}
+
+<div class="card shadow">
+
+    <div class="card-header bg-dark text-white">
+        <h3>My Profile</h3>
+    </div>
+
+    <div class="card-body">
+
+        {% if user_obj.profile_image %}
+            <img src="{{ user_obj.profile_image.url }}"
+                 width="150"
+                 class="img-thumbnail mb-3">
+        {% endif %}
+
+        <table class="table">
+
+            <tr>
+                <th>Username</th>
+                <td>{{ user_obj.username }}</td>
+            </tr>
+
+            <tr>
+                <th>First Name</th>
+                <td>{{ user_obj.first_name }}</td>
+            </tr>
+
+            <tr>
+                <th>Last Name</th>
+                <td>{{ user_obj.last_name }}</td>
+            </tr>
+
+            <tr>
+                <th>Email</th>
+                <td>{{ user_obj.email }}</td>
+            </tr>
+
+            <tr>
+                <th>Phone</th>
+                <td>{{ user_obj.phone }}</td>
+            </tr>
+
+            <tr>
+                <th>Role</th>
+                <td>{{ user_obj.get_role_display }}</td>
+            </tr>
+
+        </table>
+
+        <a href="{% url 'accounts:profile_update' %}"
+           class="btn btn-warning">
+            Edit Profile
+        </a>
+        <a href="{% url 'accounts:change_password' %}"
+   class="btn btn-primary">
+    Change Password
+</a>
+
+    </div>
+
+</div>
+
+{% endblock %}

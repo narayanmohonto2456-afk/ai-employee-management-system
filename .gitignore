@@ -1,0 +1,33 @@
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Secrets — never commit real credentials
+.env
+
+# Django
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+/media/*
+!/media/.gitkeep
+
+# Logs
+*.log
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

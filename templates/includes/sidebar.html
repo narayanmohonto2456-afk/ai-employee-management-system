@@ -1,0 +1,132 @@
+<div class="sidebar text-white">
+
+    <!-- User Information -->
+    <div class="text-center py-4 border-bottom">
+
+        {% if user.profile_image %}
+
+            <img src="{{ user.profile_image.url }}"
+                 class="profile-image mb-3 rounded-circle"
+                 width="90"
+                 height="90"
+                 alt="Profile Image">
+
+        {% else %}
+
+            <i class="bi bi-person-circle display-3"></i>
+
+        {% endif %}
+
+        <h5 class="mb-1">
+            {{ user.get_full_name|default:user.username }}
+        </h5>
+
+        <small class="text-light">
+            {{ user.get_role_display }}
+        </small>
+
+    </div>
+
+    <!-- Navigation -->
+    <ul class="nav flex-column mt-3">
+
+        <!-- Dashboard -->
+        <li class="nav-item">
+            <a href="{% url 'dashboard:dashboard' %}" class="nav-link text-white">
+                <i class="bi bi-speedometer2 me-2"></i>
+                Dashboard
+            </a>
+        </li>
+
+        <!-- ========================= -->
+        <!-- ADMIN & HR -->
+        <!-- ========================= -->
+        {% if user.role == "ADMIN" or user.role == "HR" %}
+
+        <li class="nav-item">
+            <a href="{% url 'departments:department_list' %}" class="nav-link text-white">
+                <i class="bi bi-building me-2"></i>
+                Departments
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{% url 'employees:employee_list' %}" class="nav-link text-white">
+                <i class="bi bi-people-fill me-2"></i>
+                Employees
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{% url 'attendance:attendance_list' %}" class="nav-link text-white">
+                <i class="bi bi-calendar-check me-2"></i>
+                Attendance
+            </a>
+        </li>
+        <li class="nav-item">
+
+    <a class="nav-link"
+       href="{% url 'reports:attendance_report' %}">
+
+        <i class="bi bi-bar-chart-fill"></i>
+
+        Attendance Report
+
+    </a>
+
+</li>
+
+        {% comment %} <li class="nav-item">
+            <a href="{% url 'leave_management:leave_list' %}" class="nav-link text-white">
+                <i class="bi bi-calendar-event me-2"></i>
+                Leave Management
+            </a>
+        </li> {% endcomment %}
+
+        {% endif %}
+
+        <!-- ========================= -->
+        <!-- EMPLOYEE -->
+        <!-- ========================= -->
+        {% if user.role == "EMPLOYEE" %}
+
+        <li class="nav-item">
+            <a href="{% url 'attendance:attendance_list' %}" class="nav-link text-white">
+                <i class="bi bi-calendar-check me-2"></i>
+                My Attendance
+            </a>
+        </li>
+
+        {% comment %} <li class="nav-item">
+            <a href="{% url 'leave_management:leave_list' %}" class="nav-link text-white">
+                <i class="bi bi-calendar-event me-2"></i>
+                My Leave
+            </a>
+        </li> {% endcomment %}
+
+        {% endif %}
+
+        <!-- ========================= -->
+        <!-- COMMON -->
+        <!-- ========================= -->
+
+        <li class="nav-item">
+            <a href="{% url 'accounts:profile' %}" class="nav-link text-white">
+                <i class="bi bi-person me-2"></i>
+                My Profile
+            </a>
+        </li>
+
+        <li class="nav-item mt-3 px-3">
+            <form method="post" action="{% url 'accounts:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger w-100">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Logout
+                </button>
+            </form>
+        </li>
+
+    </ul>
+
+</div>

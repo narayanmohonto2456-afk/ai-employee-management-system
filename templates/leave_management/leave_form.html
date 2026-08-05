@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}
+Apply Leave
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-primary text-white">
+
+                    <h4 class="mb-0">
+
+                        <i class="bi bi-calendar-plus"></i>
+
+                        Apply for Leave
+
+                    </h4>
+
+                </div>
+
+                <div class="card-body">
+
+                    <form method="post">
+
+                        {% csrf_token %}
+
+                        {{ form.as_p }}
+
+                        <div class="mt-3">
+
+                            <button
+                                type="submit"
+                                class="btn btn-success">
+
+                                <i class="bi bi-check-circle"></i>
+
+                                Submit Leave Request
+
+                            </button>
+
+                            <a
+                                href="{% url 'leave_management:leave_list' %}"
+                                class="btn btn-secondary">
+
+                                Cancel
+
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
