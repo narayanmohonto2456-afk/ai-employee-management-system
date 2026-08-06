@@ -2,7 +2,7 @@
 ✅ PostgreSQL
 ✅ Custom User Model
 ✅ Authentication
-⬜ Custom PyJWT
+✅ SimpleJWT
 ⬜ Google OAuth
 ⬜ Face Recognition
 ⬜ AI Assistant (Ollama)
