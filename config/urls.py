@@ -17,6 +17,7 @@ urlpatterns = [
     path('employees/' , include('employees.urls')),
     path('leave-management/', include('leave_management.urls')),
     path("reports/", include("reports.urls")),
+    path("api/auth/",include("accounts.api.urls"),),
 ]
 
 if settings.DEBUG:

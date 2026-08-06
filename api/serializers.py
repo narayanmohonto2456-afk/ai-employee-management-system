@@ -4,6 +4,7 @@ from rest_framework import serializers
 from departments.models import Department
 from employees.models import Employee
 
+
 User = get_user_model()
 
 
