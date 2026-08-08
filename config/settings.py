@@ -1,34 +1,20 @@
-import os   
+import os
 from pathlib import Path
-import environ
-from dotenv import load_dotenv
 from datetime import timedelta
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+import environ
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ---------------------------------------------------------------------------
-# Environment variables
-# ---------------------------------------------------------------------------
-# SECRET_KEY, DEBUG and the database credentials all come from a local .env
-# file (see .env.example) instead of being hardcoded here. settings.py is
-# committed to Git, and Git history is effectively permanent/public the
-# moment this repo is pushed — so nothing secret can live in this file.
 env = environ.Env(
     DEBUG=(bool, False),
 )
-environ.Env.read_env(BASE_DIR / '.env')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = os.getenv('SECRET_KEY')
-SECRET_KEY = "django-insecure-test-key-123456789"
+environ.Env.read_env(BASE_DIR / ".env")
 
-load_dotenv()
+SECRET_KEY = env("SECRET_KEY")
 
-
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = []
 
@@ -209,3 +195,17 @@ SIMPLE_JWT = {
 
 
 AUTH_USER_MODEL = "accounts.User"
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = "smtp.gmail.com"
+
+EMAIL_PORT = 587
+
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "nonithe5@gmail.com"
+
+EMAIL_HOST_PASSWORD = "wcwubkubqvvdxztx"
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

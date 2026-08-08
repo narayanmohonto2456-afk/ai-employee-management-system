@@ -3,10 +3,10 @@ from django.db import models
 
 
 class User(AbstractUser):
-    """
-    Custom User model for the Employee Management System.
-    Extends Django's built-in AbstractUser.
-    """
+
+#   Custom User model for the Employee Management System.
+#    Extends Django's built-in AbstractUser.
+
 
     class Role(models.TextChoices):
         ADMIN = "ADMIN", "Admin"
@@ -33,6 +33,11 @@ class User(AbstractUser):
         blank=True,
         null=True,
     )
+
+    email_verified = models.BooleanField(
+    default=False,
+    help_text="Whether the user's email has been verified.",
+)
 
     def __str__(self):
         return self.username

@@ -6,12 +6,70 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from accounts.models import User
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import get_user_model
+from accounts.services.email_service import EmailService
 
+User = get_user_model()
 
+class RegisterSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField(
+        write_only=True,
+        validators=[validate_password],
+    )
+
+    confirm_password = serializers.CharField(
+        write_only=True,
+    )
+
+    class Meta:
+        model = User
+
+        fields = [
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "phone",
+            "password",
+            "confirm_password",
+        ]
+
+    def validate(self, attrs):
+
+        if attrs["password"] != attrs["confirm_password"]:
+            raise serializers.ValidationError(
+                {
+                    "confirm_password":
+                    "Passwords do not match."
+                }
+            )
+
+        return attrs
+
+    def create(self, validated_data):
+
+        validated_data.pop("confirm_password")
+
+        password = validated_data.pop("password")
+
+        user = User.objects.create_user(
+        password=password,
+        **validated_data,
+        )
+
+        user.email_verified = False
+
+        user.save(
+            update_fields=["email_verified"]
+        )
+
+        return user
+
+    
 class LoginSerializer(TokenObtainPairSerializer):
-    """
-    Custom Login Serializer
-    """
+
+#    Custom Login Serializer
 
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
@@ -27,23 +85,34 @@ class LoginSerializer(TokenObtainPairSerializer):
 
         return token
 
-    def validate(self, attrs):
+def validate(self, attrs):
 
-        data = super().validate(attrs)
+    data = super().validate(attrs)
 
-        data["user"] = {
-            "id": self.user.id,
-            "username": self.user.username,
-            "email": self.user.email,
-            "role": self.user.role,
-        }
+    if not self.user.email_verified:
+        raise serializers.ValidationError(
+            {
+                "email": (
+                    "Please verify your email "
+                    "before logging in."
+                )
+            }
+        )
 
-        return data
+    data["user"] = {
+        "id": self.user.id,
+        "username": self.user.username,
+        "email": self.user.email,
+        "role": self.user.role,
+        "email_verified": self.user.email_verified,
+    }
+
+    return data
 
 class LogoutSerializer(serializers.Serializer):
-    """
-    Logout Serializer
-    """
+
+#    Logout Serializer
+
 
     refresh = serializers.CharField()
 
@@ -66,9 +135,9 @@ class LogoutSerializer(serializers.Serializer):
             )
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    """
-    Logged-in User Profile Serializer
-    """
+
+#    Logged-in User Profile Serializer
+
 
     class Meta:
 
@@ -83,6 +152,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "phone",
             "role",
             "profile_image",
+            "email_verified",
             "is_active",
             "date_joined",
         ]
@@ -90,9 +160,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 class ChangePasswordSerializer(serializers.Serializer):
-    """
-    Change Password Serializer
-    """
+
+#    Change Password Serializer
 
     old_password = serializers.CharField(
         write_only=True
