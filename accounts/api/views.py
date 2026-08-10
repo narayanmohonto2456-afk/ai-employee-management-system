@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny,IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
@@ -8,7 +8,15 @@ from django.utils.http import urlsafe_base64_decode
 
 from accounts.tokens import email_verification_token
 
-from .serializers import LoginSerializer,LogoutSerializer,UserProfileSerializer, ChangePasswordSerializer, RegisterSerializer
+from .serializers import (LoginSerializer,
+                          LogoutSerializer,
+                          UserProfileSerializer, 
+                          ChangePasswordSerializer, 
+                          RegisterSerializer,
+                          ResendVerificationEmailSerializer,
+                          ForgotPasswordSerializer,
+                          ResetPasswordSerializer,)
+
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from accounts.services.email_service import EmailService
@@ -200,4 +208,96 @@ class VerifyEmailAPIView(APIView):
                 "message": "Verification link has expired."
             },
             status=status.HTTP_400_BAD_REQUEST,
+        )
+
+class ResendVerificationEmailAPIView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        serializer = ResendVerificationEmailSerializer(
+            data=request.data,
+            context={"request": request},
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.user
+
+        EmailService.send_verification_email(
+            request,
+            user,
+        )
+
+        return Response(
+            {
+                "detail": (
+                    "A new verification email "
+                    "has been sent."
+                )
+            },
+            status=status.HTTP_200_OK,
+        )
+
+class ForgotPasswordAPIView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        serializer = ForgotPasswordSerializer(
+            data=request.data
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        user = serializer.user
+
+        EmailService.send_password_reset_email(
+            request,
+            user,
+        )
+
+        return Response(
+            {
+                "message": (
+                    "Password reset email sent successfully."
+                )
+            },
+            status=status.HTTP_200_OK,
+        )
+
+class ResetPasswordAPIView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        serializer = ResetPasswordSerializer(
+            data=request.data
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        user = serializer.user
+
+        user.set_password(
+            serializer.validated_data["new_password"]
+        )
+
+        user.save(
+            update_fields=["password"]
+        )
+
+        return Response(
+            {
+                "message":
+                "Password reset successfully."
+            },
+            status=status.HTTP_200_OK,
         )

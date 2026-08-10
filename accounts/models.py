@@ -13,6 +13,16 @@ class User(AbstractUser):
         HR = "HR", "HR"
         EMPLOYEE = "EMPLOYEE", "Employee"
 
+    email = models.EmailField(
+    unique=True,
+    help_text="User email address",
+    )
+
+    email_verified = models.BooleanField(
+    default=False,
+    help_text="Whether the user's email address has been verified.",
+    )
+
     phone = models.CharField(
         max_length=15,
         unique=True,
@@ -34,10 +44,6 @@ class User(AbstractUser):
         null=True,
     )
 
-    email_verified = models.BooleanField(
-    default=False,
-    help_text="Whether the user's email has been verified.",
-)
 
     def __str__(self):
         return self.username

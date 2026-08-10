@@ -4,6 +4,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from .views import dashboard
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path("", include("dashboard.urls")),
@@ -18,6 +19,13 @@ urlpatterns = [
     path('leave-management/', include('leave_management.urls')),
     path("reports/", include("reports.urls")),
     path("api/auth/",include("accounts.api.urls"),),
+    path(
+    "accounts/reset-password/<uid>/<token>/",
+    TemplateView.as_view(
+        template_name="accounts/reset_password.html"
+    ),
+    name="reset_password_page",
+),
 ]
 
 if settings.DEBUG:

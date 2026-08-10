@@ -8,6 +8,9 @@ from accounts.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model
 from accounts.services.email_service import EmailService
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
 
 User = get_user_model()
 
@@ -211,3 +214,124 @@ class ChangePasswordSerializer(serializers.Serializer):
         user.save()
 
         return user
+
+class ResendVerificationEmailSerializer(serializers.Serializer):
+
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+
+        try:
+            user = User.objects.get(
+                email__iexact=value
+            )
+        except User.DoesNotExist:
+            raise serializers.ValidationError(
+                "No account is associated with this email address."
+            )
+
+        if user.email_verified:
+            raise serializers.ValidationError(
+                "This email address is already verified."
+            )
+
+        self.user = user
+
+        return value
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+
+        try:
+            user = User.objects.get(
+                email__iexact=value
+            )
+
+        except User.DoesNotExist:
+            raise serializers.ValidationError(
+                "No account is associated with this email address."
+            )
+
+        if not user.is_active:
+            raise serializers.ValidationError(
+                "This account is inactive."
+            )
+
+        self.user = user
+
+        return value
+
+class ResetPasswordSerializer(serializers.Serializer):
+
+    uid = serializers.CharField()
+    token = serializers.CharField()
+
+    new_password = serializers.CharField(
+        write_only=True
+    )
+
+    confirm_password = serializers.CharField(
+        write_only=True
+    )
+
+    def validate(self, attrs):
+
+        # Check passwords match
+        if attrs["new_password"] != attrs["confirm_password"]:
+            raise serializers.ValidationError(
+                {
+                    "confirm_password":
+                    "Passwords do not match."
+                }
+            )
+
+        # Decode user ID
+        try:
+            uid = force_str(
+                urlsafe_base64_decode(
+                    attrs["uid"]
+                )
+            )
+
+            user = User.objects.get(
+                pk=uid
+            )
+
+        except (
+            TypeError,
+            ValueError,
+            OverflowError,
+            User.DoesNotExist,
+        ):
+            raise serializers.ValidationError(
+                {
+                    "uid":
+                    "Invalid password reset link."
+                }
+            )
+
+        # Validate reset token
+        if not default_token_generator.check_token(
+            user,
+            attrs["token"],
+        ):
+            raise serializers.ValidationError(
+                {
+                    "token":
+                    "Invalid or expired password reset link."
+                }
+            )
+
+        # Validate password strength
+        validate_password(
+            attrs["new_password"],
+            user=user,
+        )
+
+        self.user = user
+
+        return attrs
