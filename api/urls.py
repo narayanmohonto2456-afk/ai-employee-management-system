@@ -5,8 +5,6 @@ from rest_framework_simplejwt.views import (
 )
 from .views import (
     UserProfileAPIView,
-    DepartmentListCreateAPIView,
-    DepartmentDetailAPIView,
     EmployeeListCreateAPIView,
     EmployeeDetailAPIView,
     MyEmployeeProfileAPIView,
@@ -32,17 +30,6 @@ urlpatterns = [
         UserProfileAPIView.as_view(),
         name="profile",
     ),
-    path(
-    "departments/",
-    DepartmentListCreateAPIView.as_view(),
-    name="department_list",
-),
-
-path(
-    "departments/<int:pk>/",
-    DepartmentDetailAPIView.as_view(),
-    name="department_detail",
-),
 path(
     "employees/",
     EmployeeListCreateAPIView.as_view(),

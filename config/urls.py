@@ -19,13 +19,8 @@ urlpatterns = [
     path('leave-management/', include('leave_management.urls')),
     path("reports/", include("reports.urls")),
     path("api/auth/",include("accounts.api.urls"),),
-    path(
-    "accounts/reset-password/<uid>/<token>/",
-    TemplateView.as_view(
-        template_name="accounts/reset_password.html"
-    ),
-    name="reset_password_page",
-),
+    path("accounts/reset-password/<uid>/<token>/",TemplateView.as_view(template_name="accounts/reset_password.html"),name="reset_password_page",),
+path("api/departments/",include("departments.api.urls"),),
 ]
 
 if settings.DEBUG:

@@ -12,6 +12,15 @@ from django.views.generic import (
 from .forms import DepartmentForm
 from .models import Department
 from django.db.models import Q
+from rest_framework.permissions import IsAuthenticated
+
+from django.db.models.deletion import ProtectedError
+
+from rest_framework import generics, status
+from rest_framework.response import Response
+
+from .serializers import DepartmentSerializer
+
 
 class DepartmentListView(LoginRequiredMixin, ListView):
     """
@@ -107,3 +116,45 @@ class DepartmentDeleteView(
             "Department deleted successfully."
         )
         return super().form_valid(form)
+
+class DepartmentListCreateAPIView(generics.ListCreateAPIView):
+    """
+    List all departments or create a new department.
+    """
+
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class DepartmentDetailAPIView(
+    generics.RetrieveUpdateDestroyAPIView
+):
+    """
+    Retrieve, update, or delete a department.
+    """
+
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        try:
+            instance.delete()
+
+        except ProtectedError:
+            return Response(
+                {
+                    "detail": (
+                        "This department cannot be deleted "
+                        "because employees are assigned to it."
+                    )
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )
