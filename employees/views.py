@@ -14,7 +14,7 @@ from django.views.generic import (
     View,
 )
 
-from accounts.mixins import HRRequiredMixin
+from accounts.mixins import HRRequiredMixin, NoCacheMixin
 from departments.models import Department
 
 from .forms import EmployeeForm
@@ -22,8 +22,14 @@ from .models import Employee
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+
+from .serializers import EmployeeSerializer
+
 
 class EmployeeListView(
+    NoCacheMixin,
     LoginRequiredMixin,
     HRRequiredMixin,
     ListView,
@@ -187,6 +193,7 @@ class EmployeeCreateView(
             self.request,
             "Employee created successfully."
         )
+
         return super().form_valid(form)
 
 
@@ -240,3 +247,31 @@ class EmployeeDeleteView(
             "Employee deleted successfully."
         )
         return super().form_valid(form)
+
+class EmployeeListCreateAPIView(generics.ListCreateAPIView):
+    """
+    List all employees or create a new employee.
+    """
+
+    queryset = Employee.objects.select_related(
+        "user",
+        "department",
+    )
+
+    serializer_class = EmployeeSerializer
+    permission_classes = [IsAuthenticated]
+
+class EmployeeDetailAPIView(
+    generics.RetrieveUpdateDestroyAPIView
+):
+    """
+    Retrieve, update, or delete an employee.
+    """
+
+    queryset = Employee.objects.select_related(
+        "user",
+        "department",
+    )
+
+    serializer_class = EmployeeSerializer
+    permission_classes = [IsAuthenticated]
