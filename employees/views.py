@@ -4,6 +4,8 @@ from django.contrib.auth.mixins import (
     PermissionRequiredMixin,
 )
 from django.db.models import Q
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView,
@@ -14,18 +16,23 @@ from django.views.generic import (
     View,
 )
 
-from accounts.mixins import HRRequiredMixin, NoCacheMixin
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+
+from accounts.mixins import (
+    HRRequiredMixin,
+    NoCacheMixin,
+)
 from departments.models import Department
 
 from .forms import EmployeeForm
 from .models import Employee
-from django.http import JsonResponse
-from django.template.loader import render_to_string
-
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
-
 from .serializers import EmployeeSerializer
+
+
+# ============================================================
+# EMPLOYEE WEB VIEWS
+# ============================================================
 
 
 class EmployeeListView(
@@ -35,7 +42,14 @@ class EmployeeListView(
     ListView,
 ):
     """
-    Employee List with Search, Filtering and Pagination.
+    Display employees with:
+
+    - Search
+    - Department filtering
+    - Gender filtering
+    - Pagination
+
+    Only Admin and HR users can access this page.
     """
 
     model = Employee
@@ -44,6 +58,7 @@ class EmployeeListView(
     paginate_by = 10
 
     def get_queryset(self):
+
         queryset = Employee.objects.select_related(
             "user",
             "department",
@@ -53,21 +68,37 @@ class EmployeeListView(
         department = self.request.GET.get("department")
         gender = self.request.GET.get("gender")
 
+        # ----------------------------------------------------
+        # Search
+        # ----------------------------------------------------
+
         if search:
+
             queryset = queryset.filter(
                 Q(employee_id__icontains=search)
                 | Q(user__first_name__icontains=search)
                 | Q(user__last_name__icontains=search)
                 | Q(user__username__icontains=search)
+                | Q(user__email__icontains=search)
                 | Q(designation__icontains=search)
             )
 
+        # ----------------------------------------------------
+        # Department filter
+        # ----------------------------------------------------
+
         if department:
+
             queryset = queryset.filter(
                 department_id=department
             )
 
+        # ----------------------------------------------------
+        # Gender filter
+        # ----------------------------------------------------
+
         if gender:
+
             queryset = queryset.filter(
                 gender=gender
             )
@@ -75,26 +106,43 @@ class EmployeeListView(
         return queryset.order_by("employee_id")
 
     def get_context_data(self, **kwargs):
+
         context = super().get_context_data(**kwargs)
 
         context["departments"] = Department.objects.all()
-        context["search_query"] = self.request.GET.get("q", "")
-        context["selected_department"] = self.request.GET.get(
-            "department",
-            "",
+
+        context["search_query"] = (
+            self.request.GET.get("q", "")
         )
-        context["selected_gender"] = self.request.GET.get(
-            "gender",
-            "",
+
+        context["selected_department"] = (
+            self.request.GET.get(
+                "department",
+                "",
+            )
+        )
+
+        context["selected_gender"] = (
+            self.request.GET.get(
+                "gender",
+                "",
+            )
         )
 
         return context
+
 
 class EmployeeSearchAPIView(
     LoginRequiredMixin,
     HRRequiredMixin,
     View,
 ):
+    """
+    AJAX employee search endpoint.
+
+    Only authenticated Admin and HR users
+    can use this endpoint.
+    """
 
     def get(self, request):
 
@@ -104,32 +152,37 @@ class EmployeeSearchAPIView(
         )
 
         search = request.GET.get("q")
-
         department = request.GET.get("department")
-
         gender = request.GET.get("gender")
+
+        # ----------------------------------------------------
+        # Search
+        # ----------------------------------------------------
 
         if search:
 
             queryset = queryset.filter(
-
                 Q(employee_id__icontains=search)
-
                 | Q(user__first_name__icontains=search)
-
                 | Q(user__last_name__icontains=search)
-
                 | Q(user__username__icontains=search)
-
+                | Q(user__email__icontains=search)
                 | Q(designation__icontains=search)
-
             )
+
+        # ----------------------------------------------------
+        # Department filter
+        # ----------------------------------------------------
 
         if department:
 
             queryset = queryset.filter(
                 department_id=department
             )
+
+        # ----------------------------------------------------
+        # Gender filter
+        # ----------------------------------------------------
 
         if gender:
 
@@ -138,17 +191,13 @@ class EmployeeSearchAPIView(
             )
 
         html = render_to_string(
-
             "employees/partials/employee_table.html",
-
             {
                 "employees": queryset.order_by(
                     "employee_id"
                 )
             },
-
             request=request,
-
         )
 
         return JsonResponse(
@@ -159,12 +208,16 @@ class EmployeeSearchAPIView(
 
 
 class EmployeeDetailView(
+    NoCacheMixin,
     LoginRequiredMixin,
     HRRequiredMixin,
     DetailView,
 ):
     """
     Display employee details.
+
+    Only Admin and HR users can access
+    employee management details.
     """
 
     model = Employee
@@ -173,6 +226,7 @@ class EmployeeDetailView(
 
 
 class EmployeeCreateView(
+    NoCacheMixin,
     LoginRequiredMixin,
     HRRequiredMixin,
     PermissionRequiredMixin,
@@ -180,6 +234,11 @@ class EmployeeCreateView(
 ):
     """
     Create a new employee.
+
+    Requires:
+        employees.add_employee
+
+    Only Admin and HR users are allowed.
     """
 
     model = Employee
@@ -189,22 +248,27 @@ class EmployeeCreateView(
     permission_required = "employees.add_employee"
 
     def form_valid(self, form):
+
         messages.success(
             self.request,
-            "Employee created successfully."
+            "Employee created successfully.",
         )
 
         return super().form_valid(form)
 
 
 class EmployeeUpdateView(
+    NoCacheMixin,
     LoginRequiredMixin,
     HRRequiredMixin,
     PermissionRequiredMixin,
     UpdateView,
 ):
     """
-    Update employee.
+    Update an existing employee.
+
+    Requires:
+        employees.change_employee
     """
 
     model = Employee
@@ -214,21 +278,27 @@ class EmployeeUpdateView(
     permission_required = "employees.change_employee"
 
     def form_valid(self, form):
+
         messages.success(
             self.request,
-            "Employee updated successfully."
+            "Employee updated successfully.",
         )
+
         return super().form_valid(form)
 
 
 class EmployeeDeleteView(
+    NoCacheMixin,
     LoginRequiredMixin,
     HRRequiredMixin,
     PermissionRequiredMixin,
     DeleteView,
 ):
     """
-    Delete employee.
+    Delete an employee.
+
+    Requires:
+        employees.delete_employee
     """
 
     model = Employee
@@ -242,15 +312,32 @@ class EmployeeDeleteView(
     )
 
     def form_valid(self, form):
+
         messages.success(
             self.request,
-            "Employee deleted successfully."
+            "Employee deleted successfully.",
         )
+
         return super().form_valid(form)
 
-class EmployeeListCreateAPIView(generics.ListCreateAPIView):
+
+# ============================================================
+# EMPLOYEE REST API
+# ============================================================
+
+
+class EmployeeListCreateAPIView(
+    generics.ListCreateAPIView
+):
     """
-    List all employees or create a new employee.
+    Employee REST API.
+
+    GET:
+        Authenticated users can view employees.
+
+    POST:
+        Only Admin/HR users with the appropriate
+        Django permission should be able to create employees.
     """
 
     queryset = Employee.objects.select_related(
@@ -261,11 +348,21 @@ class EmployeeListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = EmployeeSerializer
     permission_classes = [IsAuthenticated]
 
+
 class EmployeeDetailAPIView(
     generics.RetrieveUpdateDestroyAPIView
 ):
     """
-    Retrieve, update, or delete an employee.
+    Employee REST API detail endpoint.
+
+    GET:
+        Authenticated users can view an employee.
+
+    PUT/PATCH:
+        Requires appropriate permissions.
+
+    DELETE:
+        Requires appropriate permissions.
     """
 
     queryset = Employee.objects.select_related(

@@ -12,7 +12,7 @@ from django.views.generic import (
 from .forms import DepartmentForm
 from .models import Department
 from django.db.models import Q
-from rest_framework.permissions import IsAuthenticated
+from api.permissions import IsAdminOrReadOnly
 
 from django.db.models.deletion import ProtectedError
 
@@ -124,7 +124,7 @@ class DepartmentListCreateAPIView(generics.ListCreateAPIView):
 
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminOrReadOnly]
 
 
 class DepartmentDetailAPIView(
@@ -136,7 +136,7 @@ class DepartmentDetailAPIView(
 
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminOrReadOnly]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

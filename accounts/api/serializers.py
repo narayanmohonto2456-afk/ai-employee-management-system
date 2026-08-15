@@ -70,48 +70,94 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
     
-class LoginSerializer(TokenObtainPairSerializer):
+class LoginSerializer(serializers.Serializer):
+    """
+    Authenticate users using email address and password
+    and return JWT access and refresh tokens.
+    """
 
-#    Custom Login Serializer
+    email = serializers.EmailField(
+        required=True
+    )
 
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+    )
 
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
+    def validate(self, attrs):
+        """
+        Authenticate the user using email and password.
+        """
 
-        # Custom Claims
-        token["username"] = user.username
-        token["role"] = user.role
-        token["email"] = user.email
+        email = attrs["email"].strip().lower()
+        password = attrs["password"]
 
-        return token
+        try:
+            user = User.objects.get(
+                email__iexact=email
+            )
+        except User.DoesNotExist:
+            raise serializers.ValidationError(
+                {
+                    "detail":
+                    "Invalid email address or password."
+                }
+            )
 
-def validate(self, attrs):
+        if not user.is_active:
+            raise serializers.ValidationError(
+                {
+                    "detail":
+                    "This account is inactive."
+                }
+            )
 
-    data = super().validate(attrs)
+        if not user.email_verified:
+            raise serializers.ValidationError(
+                {
+                    "email":
+                    "Please verify your email before logging in."
+                }
+            )
 
-    if not self.user.email_verified:
-        raise serializers.ValidationError(
-            {
-                "email": (
-                    "Please verify your email "
-                    "before logging in."
-                )
-            }
+        authenticated_user = authenticate(
+            self.context.get("request"),
+            username=user.username,
+            password=password,
         )
 
-    data["user"] = {
-        "id": self.user.id,
-        "username": self.user.username,
-        "email": self.user.email,
-        "role": self.user.role,
-        "email_verified": self.user.email_verified,
-    }
+        if authenticated_user is None:
+            raise serializers.ValidationError(
+                {
+                    "detail":
+                    "Invalid email address or password."
+                }
+            )
 
-    return data
+        refresh = RefreshToken.for_user(
+            authenticated_user
+        )
 
+        # Add our custom JWT claims.
+        refresh["username"] = authenticated_user.username
+        refresh["role"] = authenticated_user.role
+        refresh["email"] = authenticated_user.email
+
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+
+            "user": {
+                "id": authenticated_user.id,
+                "username": authenticated_user.username,
+                "email": authenticated_user.email,
+                "role": authenticated_user.role,
+                "email_verified": (
+                    authenticated_user.email_verified
+                ),
+            },
+        }
 class LogoutSerializer(serializers.Serializer):
 
 #    Logout Serializer
