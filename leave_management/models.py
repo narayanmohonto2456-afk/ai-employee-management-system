@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 
@@ -6,7 +7,7 @@ from employees.models import Employee
 
 class LeaveType(models.Model):
     """
-    Different types of leave.
+    Stores different types of leave.
     """
 
     name = models.CharField(
@@ -18,13 +19,18 @@ class LeaveType(models.Model):
         blank=True,
     )
 
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Leave Type"
+        verbose_name_plural = "Leave Types"
+
     def __str__(self):
         return self.name
 
 
 class Leave(models.Model):
     """
-    Employee leave application.
+    Stores employee leave applications.
     """
 
     class Status(models.TextChoices):
@@ -40,7 +46,8 @@ class Leave(models.Model):
 
     leave_type = models.ForeignKey(
         LeaveType,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
+        related_name="leaves",
     )
 
     start_date = models.DateField()
@@ -65,11 +72,33 @@ class Leave(models.Model):
 
     class Meta:
         ordering = ["-applied_at"]
+        verbose_name = "Leave"
+        verbose_name_plural = "Leaves"
+
+    def clean(self):
+        """
+        Validate leave dates.
+        """
+
+        if (
+            self.start_date
+            and self.end_date
+            and self.end_date < self.start_date
+        ):
+            raise ValidationError(
+                {
+                    "end_date": (
+                        "End date cannot be earlier "
+                        "than start date."
+                    )
+                }
+            )
 
     def __str__(self):
         return (
-            f"{self.employee} - "
-            f"{self.leave_type}"
+            f"{self.employee.employee_id} - "
+            f"{self.leave_type.name} - "
+            f"{self.status}"
         )
 
     def get_absolute_url(self):

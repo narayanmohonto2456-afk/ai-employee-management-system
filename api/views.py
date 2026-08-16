@@ -10,7 +10,7 @@ from rest_framework import generics, filters
 from departments.models import Department
 from django_filters.rest_framework import DjangoFilterBackend
 from employees.models import Employee
-from .permissions import IsAdminOrReadOnly
+from .permissions import IsAdminOrReadOnly, IsAdminOrHR
 
 class UserProfileAPIView(APIView):
     """
@@ -71,7 +71,7 @@ class EmployeeListCreateAPIView(generics.ListCreateAPIView):
     """
     List all employees or create a new employee.
     """
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdminOrHR]
     queryset = (
         Employee.objects
         .select_related("user", "department")
@@ -116,7 +116,7 @@ class EmployeeDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     """
     Retrieve, update or delete an employee.
     """
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdminOrHR]
     queryset = (
         Employee.objects
         .select_related("user", "department")

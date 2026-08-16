@@ -8,6 +8,10 @@ Leave Management
 
 <div class="container-fluid">
 
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <h2>
@@ -15,163 +19,241 @@ Leave Management
             Leave Management
         </h2>
 
-        <a href="{% url 'leave_management:leave_create' %}"
-           class="btn btn-primary">
-
-            <i class="bi bi-plus-circle"></i>
-            Apply Leave
-
-        </a>
+        {% if user.role == "EMPLOYEE" %}
+            <a
+                href="{% url 'leave_management:leave_create' %}"
+                class="btn btn-primary"
+            >
+                <i class="bi bi-plus-circle"></i>
+                Apply Leave
+            </a>
+        {% endif %}
 
     </div>
+
+
+    <!-- =====================================================
+         LEAVE TABLE
+    ====================================================== -->
 
     <div class="card shadow">
 
         <div class="card-header bg-primary text-white">
 
             <h5 class="mb-0">
-
                 Leave Applications
-
             </h5>
 
         </div>
+
 
         <div class="card-body">
 
             {% if leaves %}
 
-            <div class="table-responsive">
+                <div class="table-responsive">
 
-                <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle">
 
-                    <thead class="table-dark">
+                        <thead class="table-dark">
 
-                        <tr>
+                            <tr>
 
-                            <th>Employee</th>
-                            <th>Leave Type</th>
-                            <th>Start</th>
-                            <th>End</th>
-                            <th>Status</th>
-                            <th width="260">Actions</th>
+                                {% if user.role == "ADMIN" or user.role == "HR" %}
+                                    <th>Employee</th>
+                                {% endif %}
 
-                        </tr>
+                                <th>Leave Type</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Status</th>
+                                <th width="260">Actions</th>
 
-                    </thead>
+                            </tr>
 
-                    <tbody>
+                        </thead>
 
-                    {% for leave in leaves %}
 
-                        <tr>
+                        <tbody>
 
-                            <td>
+                        {% for leave in leaves %}
 
-                                {{ leave.employee.user.get_full_name }}
+                            <tr>
 
-                            </td>
+                                <!-- Employee -->
+                                {% if user.role == "ADMIN" or user.role == "HR" %}
 
-                            <td>
-
-                                {{ leave.leave_type }}
-
-                            </td>
-
-                            <td>
-
-                                {{ leave.start_date }}
-
-                            </td>
-
-                            <td>
-
-                                {{ leave.end_date }}
-
-                            </td>
-
-                            <td>
-
-                                {% if leave.status == "Approved" %}
-
-                                    <span class="badge bg-success">
-
-                                        Approved
-
-                                    </span>
-
-                                {% elif leave.status == "Rejected" %}
-
-                                    <span class="badge bg-danger">
-
-                                        Rejected
-
-                                    </span>
-
-                                {% else %}
-
-                                    <span class="badge bg-warning text-dark">
-
-                                        Pending
-
-                                    </span>
+                                    <td>
+                                        {% if leave.employee.user.get_full_name %}
+                                            {{ leave.employee.user.get_full_name }}
+                                        {% else %}
+                                            {{ leave.employee.user.username }}
+                                        {% endif %}
+                                    </td>
 
                                 {% endif %}
 
-                            </td>
 
-                            <td>
+                                <!-- Leave Type -->
 
-                                <a href="{% url 'leave_management:leave_detail' leave.pk %}"
-                                   class="btn btn-info btn-sm">
+                                <td>
+                                    {{ leave.leave_type }}
+                                </td>
 
-                                    <i class="bi bi-eye"></i>
 
-                                </a>
+                                <!-- Start Date -->
 
-                                {% if user.role == "ADMIN" or user.role == "HR" %}
+                                <td>
+                                    {{ leave.start_date }}
+                                </td>
 
-                                    {% if leave.status == "Pending" %}
 
-                                        <a href="{% url 'leave_management:approve_leave' leave.pk %}"
-                                           class="btn btn-success btn-sm">
+                                <!-- End Date -->
 
+                                <td>
+                                    {{ leave.end_date }}
+                                </td>
+
+
+                                <!-- Status -->
+
+                                <td>
+
+                                    {% if leave.status == "Approved" %}
+
+                                        <span class="badge bg-success">
                                             <i class="bi bi-check-circle"></i>
+                                            Approved
+                                        </span>
 
-                                        </a>
+                                    {% elif leave.status == "Rejected" %}
 
-                                        <a href="{% url 'leave_management:reject_leave' leave.pk %}"
-                                           class="btn btn-danger btn-sm">
-
+                                        <span class="badge bg-danger">
                                             <i class="bi bi-x-circle"></i>
+                                            Rejected
+                                        </span>
 
-                                        </a>
+                                    {% else %}
+
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-clock"></i>
+                                            Pending
+                                        </span>
 
                                     {% endif %}
 
-                                {% endif %}
+                                </td>
 
-                            </td>
 
-                        </tr>
+                                <!-- Actions -->
 
-                    {% endfor %}
+                                <td>
 
-                    </tbody>
+                                    <!-- View -->
 
-                </table>
+                                    <a
+                                        href="{% url 'leave_management:leave_detail' leave.pk %}"
+                                        class="btn btn-info btn-sm"
+                                        title="View"
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                    </a>
 
-            </div>
+
+                                    <!-- Employee Update -->
+
+                                    {% if user.role == "EMPLOYEE" %}
+
+                                        {% if leave.status == "Pending" %}
+
+                                            <a
+                                                href="{% url 'leave_management:leave_update' leave.pk %}"
+                                                class="btn btn-warning btn-sm"
+                                                title="Edit"
+                                            >
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+
+                                        {% endif %}
+
+                                    {% endif %}
+
+
+                                    <!-- Admin / HR Actions -->
+
+                                    {% if user.role == "ADMIN" or user.role == "HR" %}
+
+                                        {% if leave.status == "Pending" %}
+
+
+                                            <!-- Approve -->
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'leave_management:approve_leave' leave.pk %}"
+                                                class="d-inline"
+                                            >
+
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-success btn-sm"
+                                                    title="Approve"
+                                                    onclick="return confirm('Are you sure you want to approve this leave?');"
+                                                >
+                                                    <i class="bi bi-check-circle"></i>
+                                                </button>
+
+                                            </form>
+
+
+                                            <!-- Reject -->
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'leave_management:reject_leave' leave.pk %}"
+                                                class="d-inline"
+                                            >
+
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-danger btn-sm"
+                                                    title="Reject"
+                                                    onclick="return confirm('Are you sure you want to reject this leave?');"
+                                                >
+                                                    <i class="bi bi-x-circle"></i>
+                                                </button>
+
+                                            </form>
+
+                                        {% endif %}
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
 
             {% else %}
 
                 <div class="alert alert-info text-center">
 
-                    <h5>
+                    <i class="bi bi-info-circle"></i>
 
+                    <strong>
                         No leave requests found.
-
-                    </h5>
+                    </strong>
 
                 </div>
 

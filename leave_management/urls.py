@@ -8,37 +8,66 @@ from .views import (
     approve_leave,
     reject_leave,
 )
+
+
 app_name = "leave_management"
 
+
 urlpatterns = [
+
+    # --------------------------------------------------------
+    # Leave List
+    # --------------------------------------------------------
+
     path(
         "",
         LeaveListView.as_view(),
         name="leave_list",
     ),
 
+    # --------------------------------------------------------
+    # Apply for Leave
+    # --------------------------------------------------------
+
     path(
         "create/",
         LeaveCreateView.as_view(),
         name="leave_create",
     ),
-    path(
-    "<int:pk>/approve/",
-    approve_leave,
-    name="approve_leave",
-),
 
-path(
-    "<int:pk>/reject/",
-    reject_leave,
-    name="reject_leave",
-),
+    # --------------------------------------------------------
+    # Approve Leave
+    # --------------------------------------------------------
+
+    path(
+        "<int:pk>/approve/",
+        approve_leave,
+        name="approve_leave",
+    ),
+
+    # --------------------------------------------------------
+    # Reject Leave
+    # --------------------------------------------------------
+
+    path(
+        "<int:pk>/reject/",
+        reject_leave,
+        name="reject_leave",
+    ),
+
+    # --------------------------------------------------------
+    # Leave Detail
+    # --------------------------------------------------------
 
     path(
         "<int:pk>/",
         LeaveDetailView.as_view(),
         name="leave_detail",
     ),
+
+    # --------------------------------------------------------
+    # Update Leave
+    # --------------------------------------------------------
 
     path(
         "<int:pk>/update/",

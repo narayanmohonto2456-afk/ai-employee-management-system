@@ -17,7 +17,7 @@ from django.views.generic import (
 )
 
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from api.permissions import IsAdminOrHR
 
 from accounts.mixins import (
     HRRequiredMixin,
@@ -346,7 +346,7 @@ class EmployeeListCreateAPIView(
     )
 
     serializer_class = EmployeeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminOrHR]
 
 
 class EmployeeDetailAPIView(
@@ -371,4 +371,4 @@ class EmployeeDetailAPIView(
     )
 
     serializer_class = EmployeeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminOrHR]
