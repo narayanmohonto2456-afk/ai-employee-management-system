@@ -22,6 +22,7 @@ urlpatterns = [
     path("accounts/reset-password/<uid>/<token>/",TemplateView.as_view(template_name="accounts/reset_password.html"),name="reset_password_page",),
 path("api/departments/",include("departments.api.urls"),),
 path("api/employees/", include("employees.api.urls")),
+path("chatbot/", include("chatbot.urls"),),
 ]
 
 if settings.DEBUG:

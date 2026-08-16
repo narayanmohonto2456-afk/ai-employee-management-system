@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'leave_management',
     'api',
     "reports",
+    "chatbot",
 ]
 
 MIDDLEWARE = [
