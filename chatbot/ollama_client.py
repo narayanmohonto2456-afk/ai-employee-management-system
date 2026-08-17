@@ -6,10 +6,10 @@ OLLAMA_MODEL = "llama3.2:3b"
 
 
 def ask_ollama(prompt):
-    """
-    Send a prompt to the local Ollama model
-    and return the generated response.
-    """
+   
+    # Send a prompt to the local Ollama model
+    # and return the generated response.
+
 
     payload = {
         "model": OLLAMA_MODEL,
